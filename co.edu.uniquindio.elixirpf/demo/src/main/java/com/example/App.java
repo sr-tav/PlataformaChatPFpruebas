@@ -12,12 +12,10 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    private static Scene scene;
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader =  new FXMLLoader(getClass().getResource("Main.fxml"));
-        stage.setScene(new Scene(loader.load(), 600, 400));
+        stage.setScene(new Scene(loader.load(), 400, 400));
         stage.setTitle("JavaFX y Elixir");
         stage.show();
     }
