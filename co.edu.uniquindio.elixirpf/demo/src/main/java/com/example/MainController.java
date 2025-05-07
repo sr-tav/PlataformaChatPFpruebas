@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -79,11 +80,12 @@ public class MainController {
         }
     }
     public void abrirDashboard() throws IOException{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Dashboard.fxml"));
-        DashboardviewController controller = loader.getController();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
+        Parent root = loader.load(); // carga primero
+        DashboardviewController controller = loader.getController(); // ahora sí puedes obtenerlo
         controller.setPass(pass);
         controller.setUser(user);
-        Scene scene = new Scene(loader.load(), 600, 400);
+        Scene scene = new Scene(root, 600, 400);
         Stage stage = new Stage();
         stage.setScene(scene);
         stage.show();

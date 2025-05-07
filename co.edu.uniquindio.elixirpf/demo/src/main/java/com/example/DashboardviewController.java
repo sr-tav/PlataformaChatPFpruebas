@@ -22,19 +22,30 @@ public class DashboardviewController implements Initializable{
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         new Thread(() -> {
+            while (true) {
                 try (Socket socket = new Socket("127.0.0.1", 4040);
-                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-
-                        String mensaje = input.readLine();
-                        Platform.runLater(() -> lblNumConectados.setText(mensaje));
-                        
+                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+    
+                    writer.write("usuarios_conectados\n");
+                    writer.flush();
+    
+        
+                    String mensaje = input.readLine();
+                    Platform.runLater(() -> lblNumConectados.setText(mensaje));
     
                 } catch (Exception e) {
                     Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
                     e.printStackTrace();
                 }
-            }).start();
+    
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
     
     /**
