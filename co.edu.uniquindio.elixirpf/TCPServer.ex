@@ -1,13 +1,11 @@
 defmodule TCPServer do
 
-  @usuarios [
-    %Usuario{nombre: "Pepe", edad: 20, usuario: "pepito07", contra: "1234"},
-    %Usuario{nombre: "Juan", edad: 20, usuario: "juan07", contra: "1234"}
-  ]
-
   def start do
     SeguidorConexion.start_link([])
     {:ok, listen_socket} = :gen_tcp.listen(4040, [:binary, packet: :line, active: false, reuseaddr: true, ip: {0,0,0,0}])
+
+    crear_lista_usuarios()
+    |> Usuario.escribir_csv("usuarios.csv")
 
     IO.puts("Servidor TCP escuchando en el puerto 4040...")
     spawn(fn ->
@@ -18,9 +16,14 @@ defmodule TCPServer do
       ])
     end)
     loop_acceptor(listen_socket)
-
   end
-
+  defp crear_lista_usuarios() do
+    [
+      Usuario.crear("Pepito", 20, "pepito07","1234","01"),
+      Usuario.crear("Juan", 20, "juan07", "1234", "02"),
+      Usuario.crear("Manuel", 20, "manuel07", "1234", "03")
+    ]
+  end
   defp loop_acceptor(listen_socket) do
     IO.puts("Esperando nueva conexión...")
 

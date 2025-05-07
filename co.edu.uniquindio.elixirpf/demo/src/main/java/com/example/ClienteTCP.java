@@ -5,7 +5,7 @@ import java.net.Socket;
 public class ClienteTCP {
     
     public static void main(String[] args) {
-        String servidorIP = "192.168.1.10"; // <- IP del servidor en la red WiFi
+        String servidorIP = "192.168.56.1"; // <- IP del servidor en la red WiFi
         int puerto = 4040;
 
         try (Socket socket = new Socket(servidorIP, puerto);
