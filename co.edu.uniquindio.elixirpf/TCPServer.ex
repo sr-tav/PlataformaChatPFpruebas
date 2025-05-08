@@ -58,24 +58,59 @@ defmodule TCPServer do
         case String.split(String.trim(data), ",") do
           [user, pass] ->
             if validar_credenciales(user, pass) do
-              SeguidorConexion.increment()
               "Acceso concedido\n"
             else
               "Acceso denegado\n"
             end
+
           ["nombre_user", user, pass] ->
             "#{get_nombre_usuario(user, pass)}\n"
-
+          ["desconeccion", user, pass] ->
+            spawn(fn -> modificar_usuarios_conectados("desconeccion",user, pass) end)
         end
     end
   end
+
   defp get_nombre_usuario(user, pass) do
     user = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user == usuario.usuario && pass == usuario.contra end)
     user.nombre
   end
+
   defp validar_credenciales(user, pass) do
+    spawn(fn -> modificar_usuarios_conectados("conectar", user, pass) end)
     Usuario.leer_csv("archivos_csv/usuarios.csv")
     |>Enum.any?(fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+
   end
+
+  defp modificar_usuarios_conectados("conectar", user, pass) do
+
+    conectados = Usuario.leer_csv("archivos_csv/usuarios_conectados.csv")
+    usuarios = Usuario.leer_csv("archivos_csv/usuarios.csv")
+
+    usuario = Enum.find(usuarios, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    validacion = Enum.any?(conectados, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+
+    if !validacion do
+      nueva_lista = [usuario | conectados]
+      SeguidorConexion.increment()
+      Usuario.escribir_csv(nueva_lista, "archivos_csv/usuarios_conectados.csv")
+    end
+  end
+
+  defp modificar_usuarios_conectados("desconeccion", user, pass) do
+    conectados = Usuario.leer_csv("archivos_csv/usuarios_conectados.csv")
+    usuarios = Usuario.leer_csv("archivos_csv/usuarios.csv")
+
+    usuario = Enum.find(usuarios, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    validacion = Enum.any?(conectados, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+
+    if validacion do
+      nueva_lista = Enum.reject(conectados, fn pasa -> pasa.user_id == usuario.user_id end)
+      SeguidorConexion.decrement()
+      Usuario.escribir_csv(nueva_lista, "archivos_csv/usuarios_conectados.csv")
+    end
+  end
+
 end
 TCPServer.start()

@@ -176,6 +176,21 @@ public class DashboardviewController{
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
+
+        new Thread(() -> {
+            try (Socket socket = new Socket("127.0.0.1", 4040);
+                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+    
+                String datos = "desconeccion," + user + "," + pass + "\n";
+                writer.write(datos);
+                writer.flush();
+    
+            } catch (IOException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> labelNombreUser.setText("Error"));
+            }
+        }).start();
     }
     
 }
