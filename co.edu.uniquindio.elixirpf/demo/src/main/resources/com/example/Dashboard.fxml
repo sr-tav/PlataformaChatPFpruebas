@@ -1,21 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.DashboardviewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="558.0" prefWidth="818.0" styleClass="fondo_dash" stylesheets="@EstilosFx/general_style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.DashboardviewController">
    <children>
-      <Label layoutX="157.0" layoutY="168.0" text="Usuarios conectados:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
-      <Label fx:id="lblNumConectados" layoutX="286.0" layoutY="163.0" prefHeight="27.0" prefWidth="28.0">
-         <font>
-            <Font size="13.0" />
-         </font>
-      </Label>
+      <VBox prefHeight="558.0" prefWidth="818.0">
+         <children>
+            <StackPane fx:id="PaneSuperior" prefHeight="30.0" prefWidth="818.0">
+               <children>
+                  <Button fx:id="btnMinimizar" mnemonicParsing="false" onAction="#clickMinimizar" opacity="0.88" prefHeight="34.0" prefWidth="36.0" styleClass="minimizar_btn">
+                     <graphic>
+                        <ImageView fitHeight="10.0" fitWidth="72.0" opacity="0.64" pickOnBounds="true" preserveRatio="true" styleClass="minimizar_btn">
+                           <image>
+                              <Image url="@Imagenes/minimizar-signo.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <StackPane.margin>
+                        <Insets left="620.0" />
+                     </StackPane.margin>
+                  </Button>
+                  <Button fx:id="btnCuadrito" mnemonicParsing="false" onAction="#clickCuadrito" prefHeight="33.0" prefWidth="41.0" styleClass="minimizar_btn">
+                     <graphic>
+                        <ImageView fitHeight="14.0" fitWidth="11.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@Imagenes/cuadritos.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <StackPane.margin>
+                        <Insets left="700.0" />
+                     </StackPane.margin>
+                  </Button>
+                  <Button fx:id="btnCerrar" mnemonicParsing="false" onAction="#clickCerrar" prefHeight="38.0" prefWidth="39.0" styleClass="cerrar_btn">
+                     <graphic>
+                        <ImageView fitHeight="8.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@Imagenes/cerrar.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <StackPane.margin>
+                        <Insets left="780.0" />
+                     </StackPane.margin>
+                  </Button>
+               </children>
+            </StackPane>
+            <HBox prefHeight="530.0" prefWidth="818.0">
+               <children>
+                  <StackPane prefHeight="527.0" prefWidth="203.0">
+                     <children>
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="54.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="rectangle_user" width="187.0">
+                           <StackPane.margin>
+                              <Insets top="465.0" />
+                           </StackPane.margin>
+                        </Rectangle>
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="29.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="rectangle_conectados" width="184.0">
+                           <StackPane.margin>
+                              <Insets top="365.0" />
+                           </StackPane.margin>
+                        </Rectangle>
+                        <ScrollPane prefHeight="402.0" prefWidth="182.0">
+                           <StackPane.margin>
+                              <Insets bottom="105.0" left="8.0" right="8.0" top="8.0" />
+                           </StackPane.margin>
+                        </ScrollPane>
+                        <Label opacity="0.64" text="Usuarios conectados:" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <StackPane.margin>
+                              <Insets right="10.0" top="365.0" />
+                           </StackPane.margin>
+                        </Label>
+                        <Label fx:id="lblNumConectados" prefHeight="27.0" prefWidth="9.0" textAlignment="RIGHT" textFill="WHITE">
+                           <StackPane.margin>
+                              <Insets left="145.0" top="365.0" />
+                           </StackPane.margin>
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Circle fill="#7ad359" radius="4.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0">
+                           <StackPane.margin>
+                              <Insets right="150.0" top="365.0" />
+                           </StackPane.margin>
+                        </Circle>
+                        <ImageView fitHeight="51.0" fitWidth="39.0" opacity="0.69" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@Imagenes/profile-user-blue.png" />
+                           </image>
+                           <StackPane.margin>
+                              <Insets right="130.0" top="465.0" />
+                           </StackPane.margin>
+                        </ImageView>
+                        <Label fx:id="labelNombreUser" prefHeight="16.0" prefWidth="98.0" text="NombreUser" textFill="WHITE">
+                           <StackPane.margin>
+                              <Insets left="20.0" top="464.0" />
+                           </StackPane.margin>
+                           <font>
+                              <Font name="System Bold" size="11.0" />
+                           </font>
+                        </Label>
+                        <Button mnemonicParsing="false" opacity="0.59" prefHeight="26.0" prefWidth="20.0" styleClass="config_btn">
+                           <StackPane.margin>
+                              <Insets left="150.0" top="464.0" />
+                           </StackPane.margin>
+                           <graphic>
+                              <ImageView fitHeight="21.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@Imagenes/config.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="btnExplorar" mnemonicParsing="false" onAction="#clickExplorar" prefHeight="54.0" prefWidth="202.0" styleClass="Explorar_btn" text="Explorar mas salas!" textFill="WHITE">
+                           <graphic>
+                              <ImageView fitHeight="46.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@Imagenes/charla.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <StackPane.margin>
+                              <Insets bottom="475.0" />
+                           </StackPane.margin>
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </StackPane>
+                  <StackPane prefHeight="512.0" prefWidth="624.0" styleClass="fondo_conversacion" />
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

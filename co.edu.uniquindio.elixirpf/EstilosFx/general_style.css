@@ -1,0 +1,22 @@
+.login_btn{
+    -fx-background-color: #ba70ff;
+    -fx-background-radius: 5;
+}
+.login_btn:hover{
+    -fx-background-color: #bda1ff;
+    -fx-background-radius: 5;
+}
+.sign_up_btn{
+    -fx-background-color: #a18fb9;
+    -fx-background-radius: 5;
+}
+.sign_up_btn:hover{
+    -fx-background-color: #75668a;
+    -fx-background-radius: 5;
+}
+.redonda {
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-border-color: black;
+    -fx-padding: 5;
+}

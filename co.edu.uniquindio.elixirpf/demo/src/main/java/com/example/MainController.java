@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -27,6 +28,8 @@ public class MainController {
     private TextField textPass;
     @FXML
     private TextField textUser;
+    @FXML
+    private Button btnRegistrar;
 
     private String user;
     private String pass;
@@ -64,7 +67,6 @@ public class MainController {
                                 }
                             });
                         }
-                        Thread.sleep(10000);
 
                         writer.close();
                         input.close();
@@ -81,14 +83,28 @@ public class MainController {
     }
     public void abrirDashboard() throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
-        Parent root = loader.load(); // carga primero
-        DashboardviewController controller = loader.getController(); // ahora sí puedes obtenerlo
-        controller.setPass(pass);
-        controller.setUser(user);
-        Scene scene = new Scene(root, 600, 400);
+        Parent root = loader.load();
+
+        DashboardviewController controller = loader.getController();
+       
+        controller.setPass(this.pass);
+        controller.setUser(this.user);
+        controller.inicializar();
+        
+        Scene scene = new Scene(root, 818, 558);
         Stage stage = new Stage();
+
         stage.setScene(scene);
+
+        Stage StageCerrar = (Stage) btnRegistrar.getScene().getWindow();
+        StageCerrar.close();
+
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
+    }
+    @FXML
+    void clickRegistrar(ActionEvent event) {
+
     }
 
 }

@@ -4,9 +4,6 @@ defmodule TCPServer do
     SeguidorConexion.start_link([])
     {:ok, listen_socket} = :gen_tcp.listen(4040, [:binary, packet: :line, active: false, reuseaddr: true, ip: {0,0,0,0}])
 
-    crear_lista_usuarios()
-    |> Usuario.escribir_csv("usuarios.csv")
-
     IO.puts("Servidor TCP escuchando en el puerto 4040...")
     spawn(fn ->
       System.cmd("java", [
@@ -16,13 +13,6 @@ defmodule TCPServer do
       ])
     end)
     loop_acceptor(listen_socket)
-  end
-  defp crear_lista_usuarios() do
-    [
-      Usuario.crear("Pepito", 20, "pepito07","1234","01"),
-      Usuario.crear("Juan", 20, "juan07", "1234", "02"),
-      Usuario.crear("Manuel", 20, "manuel07", "1234", "03")
-    ]
   end
   defp loop_acceptor(listen_socket) do
     IO.puts("Esperando nueva conexión...")
@@ -73,12 +63,19 @@ defmodule TCPServer do
             else
               "Acceso denegado\n"
             end
+          ["nombre_user", user, pass] ->
+            "#{get_nombre_usuario(user, pass)}\n"
+
         end
     end
   end
-
+  defp get_nombre_usuario(user, pass) do
+    user = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    user.nombre
+  end
   defp validar_credenciales(user, pass) do
-    Enum.any?(@usuarios, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    Usuario.leer_csv("archivos_csv/usuarios.csv")
+    |>Enum.any?(fn usuario -> user == usuario.usuario && pass == usuario.contra end)
   end
 end
 TCPServer.start()

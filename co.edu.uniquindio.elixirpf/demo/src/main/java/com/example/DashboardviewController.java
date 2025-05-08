@@ -2,6 +2,7 @@ package com.example;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
@@ -9,18 +10,43 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
-public class DashboardviewController implements Initializable{
+public class DashboardviewController{
     private String user;
     private String pass;
+    private double xOffset = 0;
+    private double yOffset = 0;
+
+    @FXML
+    private StackPane PaneSuperior;
     @FXML
     private Label lblNumConectados;
 
-    @Override
-    public void initialize(URL arg0, ResourceBundle arg1) {
+    public void inicializar() {
+        
+        PaneSuperior.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+    
+        PaneSuperior.setOnMouseDragged(event -> {
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        });
+        
+        iniciarActualizacionConectados();
+        enviarDatosUsuario();
+        
+    }
+    private void iniciarActualizacionConectados() {
         new Thread(() -> {
             while (true) {
                 try (Socket socket = new Socket("127.0.0.1", 4040);
@@ -30,7 +56,6 @@ public class DashboardviewController implements Initializable{
                     writer.write("usuarios_conectados\n");
                     writer.flush();
     
-        
                     String mensaje = input.readLine();
                     Platform.runLater(() -> lblNumConectados.setText(mensaje));
     
@@ -47,7 +72,25 @@ public class DashboardviewController implements Initializable{
             }
         }).start();
     }
+    public void enviarDatosUsuario() {
+        new Thread(() -> {
+            try (Socket socket = new Socket("127.0.0.1", 4040);
+                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
     
+                String datos = "nombre_user," + user + "," + pass + "\n";
+                writer.write(datos);
+                writer.flush();
+    
+                String nombre = input.readLine();
+                Platform.runLater(() -> labelNombreUser.setText(nombre));
+    
+            } catch (IOException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> labelNombreUser.setText("Error"));
+            }
+        }).start();
+    }
     /**
      * 
      * 
@@ -70,7 +113,46 @@ public class DashboardviewController implements Initializable{
     public void setLblNumConectados(Label lblNumConectados) {
         this.lblNumConectados = lblNumConectados;
     }
-    
+
+    @FXML
+    private Button btnCerrar;
+
+    @FXML
+    private Button btnCuadrito;
+
+    @FXML
+    private Button btnExplorar;
+
+    @FXML
+    private Button btnMinimizar;
+
+    @FXML
+    private Label labelNombreUser;
+
+
+    @FXML
+    void clickCerrar(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.close();
+    }
+
+    @FXML
+    void clickCuadrito(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());;
+    }
+
+    @FXML
+    void clickExplorar(ActionEvent event) {
+        
+
+    }
+
+    @FXML
+    void clickMinimizar(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setIconified(true);
+    }
     
 }
 
