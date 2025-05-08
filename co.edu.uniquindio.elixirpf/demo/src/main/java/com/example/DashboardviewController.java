@@ -12,11 +12,15 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class DashboardviewController{
     private String user;
@@ -129,6 +133,9 @@ public class DashboardviewController{
     @FXML
     private Label labelNombreUser;
 
+    @FXML
+    private Button btnSalir;
+
 
     @FXML
     void clickCerrar(ActionEvent event) {
@@ -152,6 +159,23 @@ public class DashboardviewController{
     void clickMinimizar(ActionEvent event) {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setIconified(true);
+    }
+
+    @FXML
+    void clickSalir(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Main.fxml"));
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root, 349, 645);
+        Stage stage = new Stage();
+
+        stage.setScene(scene);
+
+        Stage StageCerrar = (Stage) btnCuadrito.getScene().getWindow();
+        StageCerrar.close();
+
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.show();
     }
     
 }
