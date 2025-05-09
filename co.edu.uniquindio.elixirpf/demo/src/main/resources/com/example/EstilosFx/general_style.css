@@ -54,6 +54,16 @@
     -fx-background-radius: 0;
     -fx-opacity: 1;
 }
+.agregar_btn{
+    -fx-background-color: #242429;
+    -fx-background-radius: 0;
+    -fx-opacity: 0.85;
+}
+.agregar_btn:hover{
+    -fx-background-color: #3d3947;
+    -fx-background-radius: 0;
+    -fx-opacity: 1;
+}
 .image-view {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 0);
     -fx-background-radius: 50;   
@@ -122,4 +132,63 @@
     -fx-max-height: 0;
     -fx-pref-height: 0;
     -fx-min-height: 0;
+}
+.field-crear-sala{
+    -fx-background-color: rgb(63, 58, 73);    /* Fondo del campo */
+    -fx-text-fill: #ccb2d4;          /* Color del texto */
+    -fx-font-size: 12px;             /* Tamaño del texto */
+    -fx-border-color: null;       /* Color del borde */
+    -fx-border-width: 0px;           /* Ancho del borde */
+    -fx-border-radius: 20px;          /* Borde redondeado */
+    -fx-background-radius: 20px;      /* Redondeado del fondo */
+    -fx-padding: 5px 10px;           /* Espaciado interno */
+    -fx-opacity: 1;                  /* Opacidad (de 0 a 1) */
+}
+.field-crear-sala:focused{
+    -fx-background-color: rgb(93, 85, 109);    /* Fondo del campo */
+    -fx-text-fill: #fefdff;          /* Color del texto */
+    -fx-font-size: 12px;             /* Tamaño del texto */
+    -fx-border-color: null;       /* Color del borde */
+    -fx-border-width: 0px;           /* Ancho del borde */
+    -fx-border-radius: 20px;          /* Borde redondeado */
+    -fx-background-radius: 20px;      /* Redondeado del fondo */
+    -fx-padding: 5px 10px;           /* Espaciado interno */
+    -fx-opacity: 1;                  /* Opacidad (de 0 a 1) */
+}
+.text-area {
+    -fx-background-color: rgb(63, 58, 73);     /* Fondo del área */
+    -fx-text-fill: #ccb2d4;           /* Color del texto */
+    -fx-font-size: 12px;              /* Tamaño del texto */
+    -fx-border-color: null;        /* Color del borde */
+    -fx-border-width: 0px;            /* Ancho del borde */
+    -fx-border-radius: 5px;           /* Borde redondeado */
+    -fx-background-radius: 20px;       /* Redondeado del fondo */
+    -fx-padding: 5px 5px;            /* Espaciado interno */
+    -fx-opacity: 1;                   /* Opacidad total */
+}
+.text-area:focused {
+    -fx-background-color: rgb(93, 85, 109);
+    -fx-text-fill: #fcf3ff;           /* Color del texto */
+    -fx-font-size: 12px;              /* Tamaño del texto */
+    -fx-border-color: null;        /* Color del borde */
+    -fx-border-width: 0px;            /* Ancho del borde */
+    -fx-border-radius: 5px;           /* Borde redondeado */
+    -fx-background-radius: 20px;       /* Redondeado del fondo */
+    -fx-padding: 5px 5px;            /* Espaciado interno */
+    -fx-opacity: 1;
+}
+.text-area .content {
+    -fx-background-color: rgb(63, 58, 73); /* fondo del área editable */
+    -fx-padding: 5px;
+}
+.text-area:focused .content {
+    -fx-background-color: rgb(93, 85, 109);
+}
+.crear-dentro-btn{
+    -fx-background-color: rgb(109, 102, 85);
+    -fx-background-radius: 20px;
+}
+.crear-dentro-btn:hover{
+    -fx-background-color: rgb(143, 135, 108);
+    -fx-background-radius: 20px;
 }

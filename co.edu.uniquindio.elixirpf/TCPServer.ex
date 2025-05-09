@@ -58,7 +58,8 @@ defmodule TCPServer do
         case String.split(String.trim(data), ",") do
           [user, pass] ->
             if validar_credenciales(user, pass) do
-              "Acceso concedido\n"
+              user_id = get_user_id(user, pass)
+              "Acceso concedido,#{user_id}\n"
             else
               "Acceso denegado\n"
             end
@@ -67,8 +68,19 @@ defmodule TCPServer do
             "#{get_nombre_usuario(user, pass)}\n"
           ["desconeccion", user, pass] ->
             spawn(fn -> modificar_usuarios_conectados("desconeccion",user, pass) end)
+          ["crear_sala", nombre, descripcion, user_id] ->
+            spawn(fn  -> crear_sala(nombre, descripcion, user_id) end)
         end
     end
+  end
+
+  defp get_user_id(user, pass) do
+    persona = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    persona.user_id
+  end
+
+  defp crear_sala(nombre,descripcion,user_id) do
+    Sala.crear_auto(nombre, descripcion,user_id)
   end
 
   defp get_nombre_usuario(user, pass) do

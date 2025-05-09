@@ -1,4 +1,4 @@
-nombre;edad;usuario;user_id
-Pepito;20;pepito07;1234;01
-Juan;20;juan07;1234;02
-Manuel;20;manuel07;1234;03
+nombre;edad;usuario;contra;user_id;salas_id
+Pepito;20;pepito07;1234;01;0/1
+Juan;20;juan07;1234;02;0
+Manuel;20;manuel07;1234;03;0

@@ -62,6 +62,11 @@
                <children>
                   <StackPane prefHeight="527.0" prefWidth="203.0">
                      <children>
+                        <ScrollPane prefHeight="402.0" prefWidth="182.0">
+                           <StackPane.margin>
+                              <Insets bottom="105.0" left="8.0" right="8.0" top="8.0" />
+                           </StackPane.margin>
+                        </ScrollPane>
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="54.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="rectangle_user" width="187.0">
                            <StackPane.margin>
                               <Insets top="465.0" />
@@ -72,11 +77,6 @@
                               <Insets top="365.0" />
                            </StackPane.margin>
                         </Rectangle>
-                        <ScrollPane prefHeight="402.0" prefWidth="182.0">
-                           <StackPane.margin>
-                              <Insets bottom="105.0" left="8.0" right="8.0" top="8.0" />
-                           </StackPane.margin>
-                        </ScrollPane>
                         <Label opacity="0.64" text="Usuarios conectados:" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="12.0" />
@@ -126,7 +126,7 @@
                               </ImageView>
                            </graphic>
                         </Button>
-                        <Button fx:id="btnExplorar" mnemonicParsing="false" onAction="#clickExplorar" prefHeight="54.0" prefWidth="202.0" styleClass="Explorar_btn" text="Explorar mas salas!" textFill="WHITE">
+                        <Button fx:id="btnExplorar" mnemonicParsing="false" onAction="#clickExplorar" prefHeight="54.0" prefWidth="134.0" styleClass="Explorar_btn" text="Explorar!" textFill="WHITE">
                            <graphic>
                               <ImageView fitHeight="46.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -135,11 +135,23 @@
                               </ImageView>
                            </graphic>
                            <StackPane.margin>
-                              <Insets bottom="475.0" />
+                              <Insets bottom="475.0" right="64.0" />
                            </StackPane.margin>
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
+                        </Button>
+                        <Button fx:id="btnCrear" mnemonicParsing="false" onAction="#clickCrear" prefHeight="54.0" prefWidth="73.0" styleClass="agregar_btn">
+                           <graphic>
+                              <ImageView fitHeight="36.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@Imagenes/boton-mas.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <StackPane.margin>
+                              <Insets bottom="475.0" left="135.0" />
+                           </StackPane.margin>
                         </Button>
                      </children>
                      <HBox.margin>

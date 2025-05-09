@@ -6,14 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +21,8 @@ import javafx.stage.StageStyle;
 public class DashboardviewController{
     private String user;
     private String pass;
+    private String user_id;
+
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -136,6 +134,11 @@ public class DashboardviewController{
     @FXML
     private Button btnSalir;
 
+    @FXML
+    private Button btnCrear;
+
+    private String sala_activa_id;
+
 
     @FXML
     void clickCerrar(ActionEvent event) {
@@ -153,6 +156,23 @@ public class DashboardviewController{
     void clickExplorar(ActionEvent event) {
         
 
+    }
+
+     @FXML
+    void clickCrear(ActionEvent event) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/crea_sala.fxml"));
+        Scene scene = new Scene(loader.load(), 360, 452);
+        CrearSalaViewController controller = loader.getController();
+        controller.inicializar();
+        controller.setUser_id(user_id);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.showAndWait();
+
+        controller.getSala_id();
+        stage.close();
     }
 
     @FXML
@@ -191,6 +211,18 @@ public class DashboardviewController{
                 Platform.runLater(() -> labelNombreUser.setText("Error"));
             }
         }).start();
+    }
+    public String getUser_id() {
+        return user_id;
+    }
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
+    public String getSala_activa_id() {
+        return sala_activa_id;
+    }
+    public void setSala_activa_id(String sala_activa_id) {
+        this.sala_activa_id = sala_activa_id;
     }
     
 }

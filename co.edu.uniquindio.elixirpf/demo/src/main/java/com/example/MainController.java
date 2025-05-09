@@ -33,6 +33,7 @@ public class MainController {
 
     private String user;
     private String pass;
+    private String user_id;
 
     @FXML
     void clickRecibir(ActionEvent event) {
@@ -43,22 +44,24 @@ public class MainController {
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
 
                         String datos = textUser.getText() + "," + textPass.getText();
-                        System.out.println("Mensaje enviado: " + datos);  // <-- IMPRIME LO QUE SE ENVÍA
+                        System.out.println("Mensaje enviado: " + datos);
 
                         writer.write(datos);
                         writer.newLine();
-                        writer.flush();  // Asegurar que se envía
+                        writer.flush();  
 
-                        // Leer respuesta del servidor
                         String mensaje = input.readLine();
-                        System.out.println("Mensaje recibido: " + mensaje);  // <-- IMPRIME LO QUE RECIBE
-                
+                        String[] partes = mensaje.split(",",2);
+                        String parte1 = partes[0].trim();
+                        String parte2 = partes.length > 1 ? partes[1].trim() : "";
+        
                         Platform.runLater(() -> lblMensaje.setText(mensaje));
 
 
-                        if ("Acceso concedido".equals(mensaje)) {
+                        if ("Acceso concedido".equals(parte1)) {
                             this.user = textUser.getText();
                             this.pass = textPass.getText();
+                            this.user_id = parte2;
                             Platform.runLater(() -> {
                                 try {
                                     abrirDashboard();
@@ -89,6 +92,7 @@ public class MainController {
        
         controller.setPass(this.pass);
         controller.setUser(this.user);
+        controller.setUser_id(user_id);
         controller.inicializar();
         
         Scene scene = new Scene(root, 818, 558);
