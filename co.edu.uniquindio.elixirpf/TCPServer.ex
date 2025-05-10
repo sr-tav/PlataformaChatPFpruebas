@@ -14,6 +14,7 @@ defmodule TCPServer do
     end)
     loop_acceptor(socket)
   end
+
   defp loop_acceptor(socket) do
     IO.puts("Esperando nueva conexión...")
     {:ok, cliente} = :gen_tcp.accept(socket)
@@ -67,6 +68,9 @@ defmodule TCPServer do
           ["nombre_sala", sala_id] ->
             obtener_nombre_sala(sala_id) <> "\n"
 
+          ["actualizar_mensajes_sala", sala_id] ->
+            obtener_mensajes_sala(sala_id) <> "\n"
+
           [user, pass] ->
             if validar_credenciales(user, pass) do
               user_id = get_user_id(user, pass)
@@ -80,6 +84,13 @@ defmodule TCPServer do
         end
     end
 
+  end
+
+  defp obtener_mensajes_sala(sala_id) do
+    "archivos_csv/sala_#{sala_id}"
+    |> Mensaje.leer_csv()
+    |> Enum.map(fn msj -> "#{msj.fecha}~#{msj.user_id}~#{msj.texto}"end)
+    |> Enum.join("|")
   end
 
   defp obtener_nombre_sala(sala_id_2) do

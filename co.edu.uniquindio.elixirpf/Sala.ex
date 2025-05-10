@@ -8,7 +8,7 @@ defmodule Sala do
   def crear_auto(nombre, descripcion, user_id) do
     sala_id = generar_id_unico("archivos_csv/salas.csv")
 
-    carpeta = "archivos_csv/sala_#{nombre}_#{sala_id}"
+    carpeta = "archivos_csv/sala_#{sala_id}"
     File.mkdir(carpeta)
 
     Usuario.agregar_salas(user_id,sala_id)

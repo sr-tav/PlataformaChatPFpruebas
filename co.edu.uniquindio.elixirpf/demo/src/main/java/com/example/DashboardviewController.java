@@ -25,6 +25,8 @@ public class DashboardviewController{
     private double yOffset = 0;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private boolean schedulerActivo = false;
+    private ScheduledExecutorService schedulerMensajes = Executors.newSingleThreadScheduledExecutor();
+    private boolean schedulerMensajesActivo = false;
 
     @FXML
     private StackPane PaneSuperior;
@@ -33,6 +35,7 @@ public class DashboardviewController{
 
     public void inicializar() {
         schedulerActivo = false;
+        schedulerMensajesActivo = false;
         PaneSuperior.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
             yOffset = event.getSceneY();
@@ -46,6 +49,55 @@ public class DashboardviewController{
         iniciarActualizacionConectados();
         enviarDatosUsuario();
         
+    }
+
+    private void iniciarActualizacionMensajes(String sala_id){
+        if (!schedulerMensajesActivo) {
+            schedulerMensajes = Executors.newScheduledThreadPool(1);
+            schedulerMensajesActivo = true;
+
+            schedulerMensajes.scheduleAtFixedRate(() -> {
+                try {
+                    
+                    int columna_user = 0;
+                    int columna_envia = 0;
+                    int fila = 0;
+                    String mensajes = SocketCliente.getInstancia().enviarComando("actualizar_mensajes_sala," + sala_id);
+
+                    if (mensajes != null && !mensajes.isEmpty()) {
+                        String[] mensajes_sala = mensajes.split("|");
+
+                        for(String mensaje: mensajes_sala){
+
+                            String[] datos_mensaje = mensaje.split("~");
+
+                            for (String dato : datos_mensaje) {
+                                String fecha = 
+                            }
+                            if (nombreSala != null && !nombreSala.isEmpty()) {
+                                final int fColumna = columna;
+                                final int fFila = fila;
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/sala-btn-view.fxml"));
+                                Button boton = loader.load();
+
+                                SalaEnListaViewController controller = loader.getController();
+                                controller.setData(nombreSala);
+
+                                boton.setOnAction(event -> {mostrarConversacion(sala_id);});
+                                Platform.runLater(() -> {
+                                    gridCanales.add(boton, fColumna, fFila);
+                                });
+                                fila++;
+                            }
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
+                     e.printStackTrace();
+                }
+            }, 0, 2, TimeUnit.SECONDS);
+        }
     }
 
     private void iniciarActualizacionConectados() {
@@ -183,6 +235,7 @@ public class DashboardviewController{
     }
     public void mostrarConversacion(String sala_id) {
         this.sala_activa_id = sala_id;
+        iniciarActualizacionMensajes(sala_activa_id);
         PaneConversacion.setVisible(true);
         PaneExplorar.setVisible(false);
     }
@@ -285,9 +338,10 @@ public class DashboardviewController{
     private TextField textEnviarMensaje;
 
     @FXML
-    void clickEnviar(ActionEvent event) {
+    void clickEnviar(ActionEvent event) throws IOException {
         if (!textEnviarMensaje.getText().isEmpty()) {
-            String comando = "enviar_mensaje_sala" + textEnviarMensaje.getText();
+            String comando = "enviar_mensaje_sala," + textEnviarMensaje.getText() + "," + sala_activa_id;
+            String respuesta = SocketCliente.getInstancia().enviarComando(comando);
         }
     }
 
