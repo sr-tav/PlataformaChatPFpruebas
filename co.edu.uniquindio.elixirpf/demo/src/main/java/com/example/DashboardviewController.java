@@ -13,6 +13,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -166,7 +167,7 @@ public class DashboardviewController{
                         SalaEnListaViewController controller = loader.getController();
                         controller.setData(nombreSala);
 
-                        boton.setOnAction(event -> {/*mostrarConversacion(sala_id);*/});
+                        boton.setOnAction(event -> {mostrarConversacion(sala_id);});
                         Platform.runLater(() -> {
                             gridCanales.add(boton, fColumna, fFila);
                         });
@@ -180,7 +181,11 @@ public class DashboardviewController{
         }
         }).start(); 
     }
-
+    public void mostrarConversacion(String sala_id) {
+        this.sala_activa_id = sala_id;
+        PaneConversacion.setVisible(true);
+        PaneExplorar.setVisible(false);
+    }
     @FXML
     void clickCerrar(ActionEvent event) {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
@@ -266,7 +271,25 @@ public class DashboardviewController{
     }
     public void reiniciarScheduler() {
     scheduler = Executors.newScheduledThreadPool(1);
-}
+    }
+    /*
+     * /////////////////////////// CONVERSACION ////////////////////////////////
+     */
+    @FXML
+    private Button btnEnviar;
+    @FXML
+    private GridPane gridConversacion;
+    @FXML
+    private Label labelNombreSala;
+    @FXML
+    private TextField textEnviarMensaje;
+
+    @FXML
+    void clickEnviar(ActionEvent event) {
+        if (!textEnviarMensaje.getText().isEmpty()) {
+            String comando = "enviar_mensaje_sala" + textEnviarMensaje.getText();
+        }
+    }
 
     
 }

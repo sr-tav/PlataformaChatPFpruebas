@@ -82,6 +82,16 @@
     -fx-background-radius: 10;
     -fx-opacity: 1;
 }
+.enviar-btn{
+    -fx-background-color: #d5b851;
+    -fx-background-radius: 30;
+    -fx-opacity: 1;
+}
+.enviar-btn:hover{
+    -fx-background-color: #ffe070;
+    -fx-background-radius: 30;
+    -fx-opacity: 1;
+}
 .rectangle_user{
     -fx-fill: #473a57;
     -fx-arc-width: 15;
