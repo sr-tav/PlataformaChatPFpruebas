@@ -1,11 +1,10 @@
 package com.example;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,6 +22,7 @@ public class DashboardviewController{
 
     private double xOffset = 0;
     private double yOffset = 0;
+    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @FXML
     private StackPane PaneSuperior;
@@ -43,45 +43,26 @@ public class DashboardviewController{
         });
         iniciarActualizacionConectados();
         enviarDatosUsuario();
+        mostrarSalas();
         
     }
     private void iniciarActualizacionConectados() {
-        new Thread(() -> {
-            while (true) {
-                try (Socket socket = new Socket("127.0.0.1", 4040);
-                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-    
-                    writer.write("usuarios_conectados\n");
-                    writer.flush();
-    
-                    String mensaje = input.readLine();
-                    Platform.runLater(() -> lblNumConectados.setText(mensaje));
-                    mostrarSalas();
-                } catch (Exception e) {
-                    Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
-                    e.printStackTrace();
-                }
-    
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
+        scheduler.scheduleAtFixedRate(() -> {
+        try {
+            String mensaje = SocketCliente.getInstancia().enviarComando("usuarios_conectados");
+            Platform.runLater(() -> lblNumConectados.setText(mensaje));
+        } catch (IOException e) {
+            Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
+            e.printStackTrace();
+        }
+    }, 0, 10, TimeUnit.SECONDS);
+}
     public void enviarDatosUsuario() {
         new Thread(() -> {
-            try (Socket socket = new Socket("127.0.0.1", 4040);
-                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+            try {
+                String datos = "nombre_user," + user + "," + pass;
+                String nombre = SocketCliente.getInstancia().enviarComando(datos);
     
-                String datos = "nombre_user," + user + "," + pass + "\n";
-                writer.write(datos);
-                writer.flush();
-    
-                String nombre = input.readLine();
                 Platform.runLater(() -> labelNombreUser.setText(nombre));
     
             } catch (IOException e) {
@@ -156,22 +137,16 @@ public class DashboardviewController{
             try {
             int columna = 0;
             int fila = 0;
-            Socket socket = new Socket("127.0.0.1", 4040);
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-            writer.write("obtener_salas," + user_id + "\n");
-            writer.flush();
-            String ids = input.readLine();
+            String comando = "obtener_salas," + user_id;
+            String ids = SocketCliente.getInstancia().enviarComando(comando);
 
             if (ids != null && !ids.isEmpty()) {
                 String[] salasIds = ids.split("/");
 
                 for(String sala_id: salasIds){
 
-                    writer.write("nombre_sala," + sala_id + "\n");
-                    writer.flush();
-                    String nombreSala = input.readLine();
+                    String comando2 = "nombre_sala," + sala_id;
+                    String nombreSala = SocketCliente.getInstancia().enviarComando(comando2);
 
                     if (nombreSala != null && !nombreSala.isEmpty()) {
                         final int fColumna = columna;
@@ -256,14 +231,12 @@ public class DashboardviewController{
         stage.show();
 
         new Thread(() -> {
-            try (Socket socket = new Socket("127.0.0.1", 4040);
-                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-    
-                String datos = "desconeccion," + user + "," + pass + "\n";
-                writer.write(datos);
-                writer.flush();
-    
+            try {
+                String datos = "desconeccion," + user + "," + pass;
+                String respuesta = SocketCliente.getInstancia().enviarComando(datos);
+                System.out.println(respuesta);
+                SocketCliente.getInstancia().cerrar();
+                scheduler.shutdownNow();
             } catch (IOException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> labelNombreUser.setText("Error"));

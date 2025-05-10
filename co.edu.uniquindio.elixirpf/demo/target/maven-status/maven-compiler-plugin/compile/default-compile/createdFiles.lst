@@ -2,6 +2,7 @@ com\example\CrearSalaViewController.class
 module-info.class
 com\example\DashboardviewController.class
 com\example\App.class
+com\example\SocketCliente.class
 com\example\MainController.class
 com\example\ClienteTCP.class
 com\example\SalaEnListaViewController.class
