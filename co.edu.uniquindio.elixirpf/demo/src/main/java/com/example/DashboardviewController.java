@@ -52,6 +52,7 @@ public class DashboardviewController{
     }
 
     private void iniciarActualizacionMensajes(String sala_id){
+
         if (!schedulerMensajesActivo) {
             schedulerMensajes = Executors.newScheduledThreadPool(1);
             schedulerMensajesActivo = true;
@@ -65,29 +66,41 @@ public class DashboardviewController{
                     String mensajes = SocketCliente.getInstancia().enviarComando("actualizar_mensajes_sala," + sala_id);
 
                     if (mensajes != null && !mensajes.isEmpty()) {
-                        String[] mensajes_sala = mensajes.split("|");
+                        String[] mensajes_sala = mensajes.split("\\|");
+                        Platform.runLater(()->  gridConversacion.getChildren().clear());
 
                         for(String mensaje: mensajes_sala){
 
                             String[] datos_mensaje = mensaje.split("~");
 
-                            for (String dato : datos_mensaje) {
-                                String fecha = 
-                            }
-                            if (nombreSala != null && !nombreSala.isEmpty()) {
-                                final int fColumna = columna;
+                            if (datos_mensaje.length == 3) {
+
+                                String fecha = datos_mensaje[0];
+                                String user_id_msj = datos_mensaje[1];
+                                String texto = datos_mensaje[2];
+                                String nombre_user = SocketCliente.getInstancia().enviarComando("nombre_user," + user_id_msj);
+
+                                final int fColumna_user = columna_user;
+                                final int fColumna_envia = columna_envia;
                                 final int fFila = fila;
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/sala-btn-view.fxml"));
-                                Button boton = loader.load();
-
-                                SalaEnListaViewController controller = loader.getController();
-                                controller.setData(nombreSala);
-
-                                boton.setOnAction(event -> {mostrarConversacion(sala_id);});
-                                Platform.runLater(() -> {
-                                    gridCanales.add(boton, fColumna, fFila);
-                                });
-                                fila++;
+                                
+                                if (this.user_id == user_id_msj) {
+                                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/sala-btn-view.fxml"));
+                                    Button boton = loader.load();
+                                    boton.setOnAction(event -> {mostrarConversacion(sala_id);});
+                                    Platform.runLater(() -> {
+                                        gridConversacion.add(boton, fColumna_user, fFila);
+                                    });
+                                    fila++;
+                                }else{
+                                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/sala-btn-view.fxml"));
+                                    Button boton = loader.load();
+                                    boton.setOnAction(event -> {mostrarConversacion(sala_id);});
+                                    Platform.runLater(() -> {
+                                        gridConversacion.add(boton, fColumna_envia, fFila);
+                                    });
+                                    fila++;
+                                }
                             }
                         }
                     }
