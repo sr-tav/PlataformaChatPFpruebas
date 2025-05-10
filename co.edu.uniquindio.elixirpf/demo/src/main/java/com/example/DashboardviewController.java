@@ -23,6 +23,7 @@ public class DashboardviewController{
     private double xOffset = 0;
     private double yOffset = 0;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private boolean schedulerActivo = false;
 
     @FXML
     private StackPane PaneSuperior;
@@ -30,7 +31,7 @@ public class DashboardviewController{
     private Label lblNumConectados;
 
     public void inicializar() {
-        
+        schedulerActivo = false;
         PaneSuperior.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
             yOffset = event.getSceneY();
@@ -43,20 +44,28 @@ public class DashboardviewController{
         });
         iniciarActualizacionConectados();
         enviarDatosUsuario();
-        mostrarSalas();
         
     }
+
     private void iniciarActualizacionConectados() {
-        scheduler.scheduleAtFixedRate(() -> {
-        try {
-            String mensaje = SocketCliente.getInstancia().enviarComando("usuarios_conectados");
-            Platform.runLater(() -> lblNumConectados.setText(mensaje));
-        } catch (IOException e) {
-            Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
-            e.printStackTrace();
+        if (!schedulerActivo) {
+            scheduler = Executors.newScheduledThreadPool(1);
+            schedulerActivo = true;
+
+            scheduler.scheduleAtFixedRate(() -> {
+                try {
+                     String mensaje = SocketCliente.getInstancia().enviarComando("usuarios_conectados");
+                     Platform.runLater(() -> lblNumConectados.setText(mensaje));
+                     mostrarSalas();
+                } catch (Exception e) {
+                    Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
+                     e.printStackTrace();
+                }
+            }, 0, 10, TimeUnit.SECONDS);
         }
-    }, 0, 10, TimeUnit.SECONDS);
-}
+        
+    }
+
     public void enviarDatosUsuario() {
         new Thread(() -> {
             try {
@@ -236,7 +245,7 @@ public class DashboardviewController{
                 String respuesta = SocketCliente.getInstancia().enviarComando(datos);
                 System.out.println(respuesta);
                 SocketCliente.getInstancia().cerrar();
-                scheduler.shutdownNow();
+                
             } catch (IOException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> labelNombreUser.setText("Error"));
@@ -255,6 +264,10 @@ public class DashboardviewController{
     public void setSala_activa_id(String sala_activa_id) {
         this.sala_activa_id = sala_activa_id;
     }
+    public void reiniciarScheduler() {
+    scheduler = Executors.newScheduledThreadPool(1);
+}
+
     
 }
 
