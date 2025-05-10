@@ -72,10 +72,25 @@
     -fx-background-color: transparent;
     -fx-clip-shape: "circle";    
 }
+.sala-btn{
+    -fx-background-color: #706f77;
+    -fx-background-radius: 10;
+    -fx-opacity: 1;
+}
+.sala-btn:hover{
+    -fx-background-color: #919096;
+    -fx-background-radius: 10;
+    -fx-opacity: 1;
+}
 .rectangle_user{
     -fx-fill: #473a57;
     -fx-arc-width: 15;
     -fx-arc-height: 15;
+}
+.rectangle_explorar{
+    -fx-fill: #b6a056;
+    -fx-arc-width: 0;
+    -fx-arc-height: 0;
 }
 .rectangle_conectados{
     -fx-fill: #3a5743;
@@ -192,3 +207,4 @@
     -fx-background-color: rgb(143, 135, 108);
     -fx-background-radius: 20px;
 }
+

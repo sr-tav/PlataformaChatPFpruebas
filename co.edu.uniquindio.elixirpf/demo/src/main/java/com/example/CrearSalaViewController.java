@@ -66,7 +66,9 @@ public class CrearSalaViewController {
                  BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
     
                 btnCrear.setDisable(true);
-                String datos = "crear_sala," + fieldNombre.getText() + "," + txtAreaDescripcion.getText() + "," + this.user_id +"\n";
+                String nombre = fieldNombre.getText().replace("\n", "").replace("\r", "");
+                String descripcion = txtAreaDescripcion.getText().replace("\n", " ").replace("\r", " ");
+                String datos = "crear_sala," + nombre + "," + descripcion + "," + this.user_id +"\n";
                 writer.write(datos);
                 writer.flush();
                 

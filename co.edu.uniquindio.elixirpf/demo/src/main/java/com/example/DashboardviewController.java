@@ -14,14 +14,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class DashboardviewController{
-    private String user;
-    private String pass;
-    private String user_id;
 
     private double xOffset = 0;
     private double yOffset = 0;
@@ -43,7 +41,6 @@ public class DashboardviewController{
             stage.setX(event.getScreenX() - xOffset);
             stage.setY(event.getScreenY() - yOffset);
         });
-        
         iniciarActualizacionConectados();
         enviarDatosUsuario();
         
@@ -60,7 +57,7 @@ public class DashboardviewController{
     
                     String mensaje = input.readLine();
                     Platform.runLater(() -> lblNumConectados.setText(mensaje));
-    
+                    mostrarSalas();
                 } catch (Exception e) {
                     Platform.runLater(() -> lblNumConectados.setText("Error de conexión"));
                     e.printStackTrace();
@@ -91,7 +88,7 @@ public class DashboardviewController{
                 e.printStackTrace();
                 Platform.runLater(() -> labelNombreUser.setText("Error"));
             }
-        }).start();
+        }).start();;
     }
     /**
      * 
@@ -137,8 +134,68 @@ public class DashboardviewController{
     @FXML
     private Button btnCrear;
 
-    private String sala_activa_id;
+    @FXML
+    private StackPane PaneConversacion;
 
+    @FXML
+    private StackPane PaneExplorar;
+
+    @FXML
+    private GridPane gridCanales;
+
+    @FXML
+    private GridPane gridExplorar;
+
+    private String sala_activa_id;
+    private String user;
+    private String pass;
+    private String user_id;
+
+    public void mostrarSalas(){
+        new Thread(() -> {
+            try {
+            int columna = 0;
+            int fila = 0;
+            Socket socket = new Socket("127.0.0.1", 4040);
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+            writer.write("obtener_salas," + user_id + "\n");
+            writer.flush();
+            String ids = input.readLine();
+
+            if (ids != null && !ids.isEmpty()) {
+                String[] salasIds = ids.split("/");
+
+                for(String sala_id: salasIds){
+
+                    writer.write("nombre_sala," + sala_id + "\n");
+                    writer.flush();
+                    String nombreSala = input.readLine();
+
+                    if (nombreSala != null && !nombreSala.isEmpty()) {
+                        final int fColumna = columna;
+                        final int fFila = fila;
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/sala-btn-view.fxml"));
+                        Button boton = loader.load();
+
+                        SalaEnListaViewController controller = loader.getController();
+                        controller.setData(nombreSala);
+
+                        boton.setOnAction(event -> {/*mostrarConversacion(sala_id);*/});
+                        Platform.runLater(() -> {
+                            gridCanales.add(boton, fColumna, fFila);
+                        });
+                        fila++;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        }).start(); 
+    }
 
     @FXML
     void clickCerrar(ActionEvent event) {
@@ -154,13 +211,15 @@ public class DashboardviewController{
 
     @FXML
     void clickExplorar(ActionEvent event) {
-        
-
+        PaneExplorar.setVisible(true);
+        PaneConversacion.setVisible(false);
     }
 
      @FXML
     void clickCrear(ActionEvent event) throws IOException {
-
+        abrir_crear_sala();
+    }
+    public void abrir_crear_sala() throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/crea_sala.fxml"));
         Scene scene = new Scene(loader.load(), 360, 452);
         CrearSalaViewController controller = loader.getController();
@@ -174,7 +233,6 @@ public class DashboardviewController{
         controller.getSala_id();
         stage.close();
     }
-
     @FXML
     void clickMinimizar(ActionEvent event) {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();

@@ -2,7 +2,7 @@ defmodule TCPServer do
 
   def start do
     SeguidorConexion.start_link([])
-    {:ok, listen_socket} = :gen_tcp.listen(4040, [:binary, packet: :line, active: false, reuseaddr: true, ip: {0,0,0,0}])
+    {:ok, socket} = :gen_tcp.listen(4040, [:binary, packet: :line, active: false, reuseaddr: true, ip: {0,0,0,0}])
 
     IO.puts("Servidor TCP escuchando en el puerto 4040...")
     spawn(fn ->
@@ -12,66 +12,84 @@ defmodule TCPServer do
         "-jar", "C:\\Users\\tomaz\\OneDrive\\Documentos\\Cositas mias\\Universidad\\Uni Quindio\\Cuarto Semestre\\Programacion3\\PlataformaChatPFpruebas\\co.edu.uniquindio.elixirpf\\demo\\target\\JavaFXApp.jar"
       ])
     end)
-    loop_acceptor(listen_socket)
+    loop_acceptor(socket)
   end
-  defp loop_acceptor(listen_socket) do
+  defp loop_acceptor(socket) do
     IO.puts("Esperando nueva conexión...")
-
-    case :gen_tcp.accept(listen_socket, 5000) do
-      {:ok, socket} ->
-        IO.puts("Cliente conectado")
-        :ok = :inet.setopts(socket, [active: false, packet: :line])
-        spawn(fn -> saludo_client(socket) end)
-        loop_acceptor(listen_socket)
-
-      {:error, :timeout} ->
-        IO.puts("Timeout en accept, reintentando...")
-        loop_acceptor(listen_socket)
-
-      {:error, reason} ->
-        IO.puts("Error crítico en accept: #{reason}")
-        Process.sleep(1000)
-        start()
-    end
+    {:ok, cliente} = :gen_tcp.accept(socket)
+    spawn(fn -> manejar_cliente(cliente) end)
+    loop_acceptor(socket)
   end
 
-  defp saludo_client(socket) do
+  defp manejar_cliente(socket) do
+
     case :gen_tcp.recv(socket, 0) do
-      {:ok, data} ->
-        IO.puts("Datos recibidos: #{inspect(data)}")
-        respuesta = procesar_mensaje(data)
+      {:ok, datos} ->
+        IO.puts("Datos recibidos: #{inspect(datos)}")
+        respuesta = procesar_mensaje(datos)
         :gen_tcp.send(socket, respuesta)
+        IO.puts("Datos enviados: #{inspect(respuesta)}")
+        manejar_cliente(socket)
+
+      {:error, _reason} ->
         :gen_tcp.close(socket)
 
-      {:error, reason} ->
-        IO.puts("Error en recepción: #{reason}")
+      {:error, :closed} ->
+        IO.puts("Cliente desconectado")
         :gen_tcp.close(socket)
     end
+
   end
 
   defp procesar_mensaje(data) do
+
     case String.trim(data) do
       "usuarios_conectados" ->
         "#{SeguidorConexion.count()}\n"
 
-      _ ->
-        case String.split(String.trim(data), ",") do
+      mensaje ->
+        case String.split(mensaje, ",") do
+
+          ["nombre_user", user, pass] ->
+            "#{get_nombre_usuario(user, pass)}\n"
+
+          ["desconeccion", user, pass] ->
+            modificar_usuarios_conectados("desconeccion", user, pass)
+            "Desconectado\n"
+
+          ["crear_sala", nombre, descripcion, user_id] ->
+            crear_sala(nombre, descripcion, user_id)
+            "Sala creada\n"
+
+          ["obtener_salas", user_id] ->
+            obtener_salas_user(user_id) <> "\n"
+
+          ["nombre_sala", sala_id] ->
+            obtener_nombre_sala(sala_id) <> "\n"
+
           [user, pass] ->
             if validar_credenciales(user, pass) do
               user_id = get_user_id(user, pass)
               "Acceso concedido,#{user_id}\n"
+
             else
               "Acceso denegado\n"
             end
-
-          ["nombre_user", user, pass] ->
-            "#{get_nombre_usuario(user, pass)}\n"
-          ["desconeccion", user, pass] ->
-            spawn(fn -> modificar_usuarios_conectados("desconeccion",user, pass) end)
-          ["crear_sala", nombre, descripcion, user_id] ->
-            spawn(fn  -> crear_sala(nombre, descripcion, user_id) end)
+          _ ->
+            "Comando no reconocido\n"
         end
     end
+
+  end
+
+  defp obtener_nombre_sala(sala_id_2) do
+    sala = Enum.find(Sala.leer_csv("archivos_csv/salas.csv"), fn sala_fn -> sala_fn.sala_id == sala_id_2 end)
+    sala.nombre
+  end
+
+  defp obtener_salas_user(user_id) do
+    persona = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user_id == usuario.user_id end)
+    persona.salas_id
   end
 
   defp get_user_id(user, pass) do
@@ -84,8 +102,12 @@ defmodule TCPServer do
   end
 
   defp get_nombre_usuario(user, pass) do
-    user = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user == usuario.usuario && pass == usuario.contra end)
-    user.nombre
+    case Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario ->
+         user == usuario.usuario && pass == usuario.contra
+       end) do
+    nil -> "Desconocido"
+    user -> user.nombre
+  end
   end
 
   defp validar_credenciales(user, pass) do

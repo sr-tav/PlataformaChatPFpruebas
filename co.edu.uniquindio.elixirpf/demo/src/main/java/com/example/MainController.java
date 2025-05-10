@@ -43,11 +43,10 @@ public class MainController {
                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
 
-                        String datos = textUser.getText() + "," + textPass.getText();
+                        String datos = textUser.getText() + "," + textPass.getText()+"\n";
                         System.out.println("Mensaje enviado: " + datos);
 
                         writer.write(datos);
-                        writer.newLine();
                         writer.flush();  
 
                         String mensaje = input.readLine();
