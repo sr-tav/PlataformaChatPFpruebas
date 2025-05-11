@@ -51,8 +51,12 @@ defmodule TCPServer do
       mensaje ->
         case String.split(mensaje, ",") do
 
-          ["nombre_user", user, pass] ->
-            "#{get_nombre_usuario(user, pass)}\n"
+          ["agregar_sala_user", user_id, sala_id] ->
+            agregar_sala_user(user_id, sala_id)
+            "Agregado\n"
+
+          ["nombre_user", user_id] ->
+            "#{get_nombre_usuario(user_id)}\n"
 
           ["desconeccion", user, pass] ->
             modificar_usuarios_conectados("desconeccion", user, pass)
@@ -62,11 +66,17 @@ defmodule TCPServer do
             crear_sala(nombre, descripcion, user_id)
             "Sala creada\n"
 
+          ["obtener_not_salas", user_id] ->
+            obtener_not_salas(user_id) <> "\n"
+
           ["obtener_salas", user_id] ->
             obtener_salas_user(user_id) <> "\n"
 
           ["nombre_sala", sala_id] ->
             obtener_nombre_sala(sala_id) <> "\n"
+
+          ["nombre_sala_descripcion", sala_id] ->
+            obtener_nombre_sala_descripcion(sala_id) <> "\n"
 
           ["actualizar_mensajes_sala", sala_id] ->
             obtener_mensajes_sala(sala_id) <> "\n"
@@ -86,16 +96,40 @@ defmodule TCPServer do
 
   end
 
+  defp agregar_sala_user(sala_id, user_id) do
+    Sala.agregar_user(sala_id, user_id)
+  end
+
+  defp obtener_not_salas(user_id) do
+    usuario = Usuario.buscar_usuario(user_id)
+    salas_usuario =
+      case usuario.salas_id do
+        "" -> []
+        ids -> String.split(ids, "/")
+      end
+
+    todas_las_salas = Sala.leer_csv("archivos_csv/salas.csv")
+    todas_las_salas
+    |>Enum.filter(fn sala -> not(sala.sala_id in salas_usuario)end)
+    |> Enum.map(& &1.sala_id)
+    |> Enum.join("/")
+  end
+
   defp obtener_mensajes_sala(sala_id) do
-    "archivos_csv/sala_#{sala_id}"
+    "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_mensajes.csv"
     |> Mensaje.leer_csv()
     |> Enum.map(fn msj -> "#{msj.fecha}~#{msj.user_id}~#{msj.texto}"end)
     |> Enum.join("|")
   end
 
+  defp obtener_nombre_sala_descripcion(sala_id_2) do
+    sala = Enum.find(Sala.leer_csv("archivos_csv/salas.csv"), fn sala_fn -> sala_fn.sala_id == sala_id_2 end)
+    "#{sala.nombre},#{sala.descripcion}"
+  end
+
   defp obtener_nombre_sala(sala_id_2) do
     sala = Enum.find(Sala.leer_csv("archivos_csv/salas.csv"), fn sala_fn -> sala_fn.sala_id == sala_id_2 end)
-    sala.nombre
+    "#{sala.nombre}"
   end
 
   defp obtener_salas_user(user_id) do
@@ -112,9 +146,9 @@ defmodule TCPServer do
     Sala.crear_auto(nombre, descripcion,user_id)
   end
 
-  defp get_nombre_usuario(user, pass) do
+  defp get_nombre_usuario(user_id) do
     case Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario ->
-         user == usuario.usuario && pass == usuario.contra
+         user_id == usuario.user_id
        end) do
     nil -> "Desconocido"
     user -> user.nombre

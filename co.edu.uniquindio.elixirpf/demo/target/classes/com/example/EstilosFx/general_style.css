@@ -217,4 +217,24 @@
     -fx-background-color: rgb(143, 135, 108);
     -fx-background-radius: 20px;
 }
-
+.fondo-mensaje-envia{
+    -fx-background-color: #66520a;
+    -fx-background-radius: 30;
+}
+.fondo-mensaje-user{
+    -fx-background-color: #473a57;
+    -fx-background-radius: 30;
+}
+.fondo-rectangle-user{
+    -fx-fill: #473a57;
+    -fx-arc-width: 60;
+    -fx-arc-height: 60;
+}
+.entrar-sala-btn{
+    -fx-background-color: #7a55a8;
+    -fx-background-radius: 30;
+}
+.entrar-sala-btn:hover{
+    -fx-background-color: #9d70d4;
+    -fx-background-radius: 30;
+}

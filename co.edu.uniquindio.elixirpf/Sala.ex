@@ -61,4 +61,12 @@ defmodule Sala do
     |> Enum.find(fn id -> not (Integer.to_string(id) in ids_existentes) end)
     |> Integer.to_string()
   end
+
+  def agregar_user(sala_id, user_id) do
+    Usuario.agregar_salas(user_id, sala_id)
+    user = Usuario.buscar_usuario(user_id)
+    usuarios = Usuario.leer_csv("archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
+    nuevos_usuarios = [user|usuarios]
+    Usuario.escribir_csv(nuevos_usuarios, "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
+  end
 end

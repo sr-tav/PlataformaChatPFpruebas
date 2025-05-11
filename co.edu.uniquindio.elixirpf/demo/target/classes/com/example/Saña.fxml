@@ -5,21 +5,34 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="345.0" styleClass="fondo_dash" stylesheets="@../descargas/PlataformaChatPFpruebas-main/co.edu.uniquindio.elixirpf/demo/src/main/resources/com/example/EstilosFx/general_style.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="toto">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="271.0" prefWidth="187.0" styleClass="fondo-mensaje-user" stylesheets="@EstilosFx/general_style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.CasillaExplorarSalaViewControler">
    <children>
-      <ImageView fx:id="imagenLogo" fitHeight="77.0" fitWidth="111.0" layoutX="134.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="271.0" layoutX="1.0" layoutY="-1.0" stroke="#7a4e97" strokeType="INSIDE" strokeWidth="3.0" styleClass="fondo-rectangle-user" width="187.0" />
+      <ImageView fitHeight="63.0" fitWidth="63.0" layoutX="58.0" layoutY="31.0" opacity="0.53" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../descargas/reunion.png" />
+            <Image url="@Imagenes/charla.png" />
          </image>
       </ImageView>
-      <Label fx:id="labelNombreSala" alignment="CENTER" layoutX="31.0" layoutY="152.0" prefHeight="38.0" prefWidth="283.0" text="Nombre" textFill="WHITE">
+      <ImageView fitHeight="36.0" fitWidth="30.0" layoutX="89.0" layoutY="32.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@Imagenes/bot-conversacional.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="labelNombreSala" alignment="CENTER" layoutX="1.0" layoutY="108.0" prefHeight="27.0" prefWidth="187.0" text="Nombre" textFill="#caa3ff">
          <font>
-            <Font name="System Bold" size="18.0" />
+            <Font name="System Bold" size="13.0" />
          </font>
       </Label>
-      <Label fx:id="labelDescripcion" alignment="TOP_LEFT" layoutX="34.0" layoutY="235.0" prefHeight="62.0" prefWidth="283.0" text="Descripcion" textAlignment="JUSTIFY" textFill="#fff7f7" wrapText="true" />
-      <Button fx:id="btnEntrar" layoutX="149.0" layoutY="328.0" mnemonicParsing="false" onAction="#clicEntrar" text="Entrar" />
+      <Label fx:id="labelDescripcion" alignment="TOP_LEFT" layoutX="14.0" layoutY="136.0" prefHeight="76.0" prefWidth="162.0" text="Descripcion" textAlignment="JUSTIFY" textFill="#cd82ff" wrapText="true">
+         <font>
+            <Font size="10.0" />
+         </font></Label>
+      <Button fx:id="btnEntrar" layoutX="57.0" layoutY="212.0" mnemonicParsing="false" onAction="#clicEntrar" prefHeight="43.0" prefWidth="76.0" styleClass="entrar-sala-btn" text="Entrar" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
    </children>
 </AnchorPane>
