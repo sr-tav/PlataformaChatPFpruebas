@@ -55,6 +55,10 @@ defmodule TCPServer do
             agregar_sala_user(user_id, sala_id)
             "Agregado\n"
 
+          ["enviar_mensaje_sala", sala_id, user_id, contenido] ->
+            guardar_mensaje(sala_id, user_id, contenido)
+            "Mensaje enviado\n"
+
           ["nombre_user", user_id] ->
             "#{get_nombre_usuario(user_id)}\n"
 
@@ -94,6 +98,17 @@ defmodule TCPServer do
         end
     end
 
+  end
+
+  defp guardar_mensaje(sala_id, user_id, contenido) do
+    ruta = "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_mensajes.csv"
+    mensajes = Mensaje.leer_csv(ruta)
+    fecha = DateTime.utc_now() |> DateTime.to_iso8601()
+
+    nuevo_mensaje = Mensaje.crear(fecha, sala_id, user_id, contenido)
+    nuevos_mensajes = mensajes ++ [nuevo_mensaje]
+
+    Mensaje.escribir_csv(nuevos_mensajes, ruta)
   end
 
   defp agregar_sala_user(sala_id, user_id) do

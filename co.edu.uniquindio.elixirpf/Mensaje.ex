@@ -26,8 +26,9 @@ defmodule Mensaje do
     |>(&File.write(nombre,&1)).()
   end
   def escribir_csv([], nombre), do: File.write!(nombre, "fecha;sala_id;user_id;texto\n")
+
   defp convertir_mensaje_linea_csv(mensaje) do
-    "#{mensaje.fecha};#{mensaje.sala_id};#{mensaje.user_id};#{mensaje.text}"
+    "#{mensaje.fecha};#{mensaje.sala_id};#{mensaje.user_id};#{mensaje.texto}"
   end
 
   def generar_mensajes(lista_mensajes, parser) do
