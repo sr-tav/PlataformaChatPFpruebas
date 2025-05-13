@@ -11,39 +11,41 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
 
 public class MainController {
+
     @FXML
     private Button btnRecibir;
+
     @FXML
     private Label lblMensaje;
+
     @FXML
     private TextField textPass;
+
     @FXML
     private TextField textUser;
+
     @FXML
     private Button btnRegistrar;
 
     private String user;
     private String pass;
     private String user_id;
-
+    /**
+     * Metodo que al darle click al boton Sign in en el login, envia al server la info del login
+     * y retorna un probatorio y un user_id para luego desplegar la ventana dashboard
+     * @param event
+     */
     @FXML
     void clickRecibir(ActionEvent event) {
         if (!textPass.getText().isEmpty() && !textUser.getText().isEmpty()) {
             new Thread(() -> {
                 try {
                         String datos = textUser.getText() + "," + textPass.getText();
-                        System.out.println("Mensaje enviado: " + datos);
-
-                        String mensaje = SocketCliente.getInstancia().enviarComando(datos);
+                        String mensaje_cript = SocketCliente.getInstancia().enviarComando(CryptoUtil.getInstance().encriptar(datos));
+                        String mensaje = CryptoUtil.getInstance().desencriptar(mensaje_cript);
 
                         String[] partes = mensaje.split(",",2);
                         String parte1 = partes[0].trim();
@@ -74,6 +76,10 @@ public class MainController {
             lblMensaje.setText("Llene los espacios vacios");
         }
     }
+    /**
+     * Metodo que abre la ventana Dashboard y la inicializa
+     * @throws IOException
+     */
     public void abrirDashboard() throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Dashboard.fxml"));
         Parent root = loader.load();
@@ -96,6 +102,11 @@ public class MainController {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
     }
+    /**
+     * Metodo que al darle click al boton Sign up, abre el formulario de registro de un nuevo
+     * usuario
+     * @param event
+     */
     @FXML
     void clickRegistrar(ActionEvent event) {
 

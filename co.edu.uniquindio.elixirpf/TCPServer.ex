@@ -27,9 +27,13 @@ defmodule TCPServer do
     case :gen_tcp.recv(socket, 0) do
       {:ok, datos} ->
         IO.puts("Datos recibidos: #{inspect(datos)}")
-        respuesta = procesar_mensaje(datos)
-        :gen_tcp.send(socket, respuesta)
+        mensaje = Encriptador.desencriptar(String.trim(datos))
+        IO.puts(mensaje)
+        respuesta = procesar_mensaje(mensaje)
+        respuesta_encriptada = "#{Encriptador.encriptar(respuesta)}\n"
+        :gen_tcp.send(socket, respuesta_encriptada)
         IO.puts("Datos enviados: #{inspect(respuesta)}")
+        IO.puts("Datos crip enviados: #{inspect(respuesta_encriptada)}")
         manejar_cliente(socket)
 
       {:error, _reason} ->
@@ -46,55 +50,56 @@ defmodule TCPServer do
 
     case String.trim(data) do
       "usuarios_conectados" ->
-        "#{SeguidorConexion.count()}\n"
+        "#{SeguidorConexion.count()}"
 
       mensaje ->
         case String.split(mensaje, ",") do
 
           ["agregar_sala_user", user_id, sala_id] ->
             agregar_sala_user(user_id, sala_id)
-            "Agregado\n"
+            "Agregado"
 
           ["enviar_mensaje_sala", sala_id, user_id, contenido] ->
             guardar_mensaje(sala_id, user_id, contenido)
-            "Mensaje enviado\n"
+            "Mensaje enviado"
 
           ["nombre_user", user_id] ->
-            "#{get_nombre_usuario(user_id)}\n"
+            "#{get_nombre_usuario(user_id)}"
 
           ["desconeccion", user, pass] ->
             modificar_usuarios_conectados("desconeccion", user, pass)
-            "Desconectado\n"
+            "Desconectado"
 
           ["crear_sala", nombre, descripcion, user_id] ->
             crear_sala(nombre, descripcion, user_id)
-            "Sala creada\n"
+            "Sala creada"
 
           ["obtener_not_salas", user_id] ->
-            obtener_not_salas(user_id) <> "\n"
+            obtener_not_salas(user_id)
 
           ["obtener_salas", user_id] ->
-            obtener_salas_user(user_id) <> "\n"
+            obtener_salas_user(user_id)
 
           ["nombre_sala", sala_id] ->
-            obtener_nombre_sala(sala_id) <> "\n"
+            obtener_nombre_sala(sala_id)
 
           ["nombre_sala_descripcion", sala_id] ->
-            obtener_nombre_sala_descripcion(sala_id) <> "\n"
+            obtener_nombre_sala_descripcion(sala_id)
 
           ["actualizar_mensajes_sala", sala_id] ->
-            obtener_mensajes_sala(sala_id) <> "\n"
+            obtener_mensajes_sala(sala_id)
 
           [user, pass] ->
-            if validar_credenciales(user, pass) do
+
+            if validar_credenciales(String.trim(user), String.trim(pass)) do
               user_id = get_user_id(user, pass)
-              "Acceso concedido,#{user_id}\n"
+              "Acceso concedido,#{user_id}"
 
             else
-              "Acceso denegado\n"
+              "Acceso denegado"
             end
           _ ->
-            "Comando no reconocido\n"
+            "Comando no reconocido"
         end
     end
 
@@ -178,15 +183,17 @@ defmodule TCPServer do
   end
 
   defp modificar_usuarios_conectados("conectar", user, pass) do
+    IO.inspect(user, label: "usuario")
+    IO.inspect(pass, label: "contrase")
 
     conectados = Usuario.leer_csv("archivos_csv/usuarios_conectados.csv")
     usuarios = Usuario.leer_csv("archivos_csv/usuarios.csv")
 
-    usuario = Enum.find(usuarios, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
+    usuario_found = Enum.find(usuarios, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
     validacion = Enum.any?(conectados, fn usuario -> user == usuario.usuario && pass == usuario.contra end)
 
-    if !validacion do
-      nueva_lista = [usuario | conectados]
+    if !validacion and usuario_found != nil do
+      nueva_lista = [usuario_found | conectados]
       SeguidorConexion.increment()
       Usuario.escribir_csv(nueva_lista, "archivos_csv/usuarios_conectados.csv")
     end

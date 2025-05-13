@@ -4,7 +4,7 @@ module-info.class
 com\example\App.class
 com\example\CasillaMensajeViewController.class
 com\example\SalaEnListaViewController.class
+com\example\CryptoUtil.class
 com\example\DashboardviewController.class
 com\example\SocketCliente.class
 com\example\MainController.class
-com\example\ClienteTCP.class

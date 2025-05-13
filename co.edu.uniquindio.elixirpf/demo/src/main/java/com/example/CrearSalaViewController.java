@@ -1,10 +1,4 @@
 package com.example;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -59,21 +53,16 @@ public class CrearSalaViewController {
 
         if (!fieldNombre.getText().isEmpty() && !txtAreaDescripcion.getText().isEmpty()) {
             new Thread(() -> {
-            try (Socket socket = new Socket("127.0.0.1", 4040);
-                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-    
+            try {
                 btnCrear.setDisable(true);
                 String nombre = fieldNombre.getText().replace("\n", "").replace("\r", "");
                 String descripcion = txtAreaDescripcion.getText().replace("\n", " ").replace("\r", " ");
                 String datos = "crear_sala," + nombre + "," + descripcion + "," + this.user_id +"\n";
-                writer.write(datos);
-                writer.flush();
-                
-                String id = input.readLine();
+                String id_cript = SocketCliente.getInstancia().enviarComando(CryptoUtil.getInstance().encriptar(datos));
+                String id = CryptoUtil.getInstance().desencriptar(id_cript);
                 this.sala_id = id;
     
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
