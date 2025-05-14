@@ -77,6 +77,9 @@ public class DashboardviewController{
     @FXML
     private ScrollPane scrollPaneMensajes;
 
+    @FXML
+    private Button btnSalirSala;
+
     private double xOffset = 0;
     private double yOffset = 0;
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -91,7 +94,9 @@ public class DashboardviewController{
     private String user_id;
     private String ultimoEstadoMensajes = "";
 
-
+    /**
+     * Metodo para inicializar la ventana dashboard
+     */
     public void inicializar() {
         PaneSuperior.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
@@ -103,6 +108,13 @@ public class DashboardviewController{
             stage.setX(event.getScreenX() - xOffset);
             stage.setY(event.getScreenY() - yOffset);
         });
+        if (schedulerMensajes != null && !schedulerMensajes.isShutdown()) {
+            schedulerMensajes.shutdownNow();
+            schedulerMensajesActivo = false;
+        }
+        PaneExplorar.setVisible(true);
+        PaneConversacion.setVisible(false);
+        mostrar_salas_nuevas();
         iniciarActualizacionConectados();
         enviarDatosUsuario();
         
@@ -112,7 +124,7 @@ public class DashboardviewController{
      * @param sala_id
      */
     private void iniciarActualizacionMensajes(String sala_id){
-
+        
         if (!schedulerMensajesActivo) {
             schedulerMensajes = Executors.newScheduledThreadPool(1);
             schedulerMensajesActivo = true;
@@ -236,6 +248,7 @@ public class DashboardviewController{
     public void mostrarSalas(){
         new Thread(() -> {
             try {
+            Platform.runLater(() -> gridCanales.getChildren().clear());
             int columna = 0;
             int fila = 0;
             String comando = "obtener_salas," + user_id;
@@ -261,6 +274,7 @@ public class DashboardviewController{
                         controller.setData(nombreSala);
 
                         boton.setOnAction(event -> {
+                            btnSalirSala.setDisable(false);
                             if (schedulerMensajes != null && !schedulerMensajes.isShutdown()) {
                                 schedulerMensajes.shutdownNow();
                                 schedulerMensajesActivo = false;
@@ -314,6 +328,7 @@ public class DashboardviewController{
     public void mostrar_salas_nuevas() {
         new Thread(() ->{
             try {
+                Platform.runLater(() -> gridExplorar.getChildren().clear());
                 int columna = 0;
                 int fila = 0;
                 String comando = "obtener_not_salas," + user_id;
@@ -344,7 +359,12 @@ public class DashboardviewController{
                         Platform.runLater(() -> {
                             gridExplorar.add(pane, fColumna, fFila);
                         });
-                        fila++;
+                        if (columna == 2) {
+                            fila++;
+                            columna = 0;
+                        }else{
+                            columna++;
+                        }
                     }
                 }
             }
@@ -372,27 +392,21 @@ public class DashboardviewController{
         stage.close();
     }
     /**
-     * Metodo para que al darle click a salir, cierre todos los canales de comunicacion con el server
-     * y le notifique la desconeccion del usuario
+     * Metodo que al darle click al boton de salir retorne al login
      * @param event
      * @throws IOException
      */
     @FXML
     void clickSalir(ActionEvent event) throws IOException {
-
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdownNow();
-            schedulerActivo = false;
-        }
-        if (schedulerMensajes != null && !schedulerMensajes.isShutdown()) {
-            schedulerMensajes.shutdownNow();
-            schedulerMensajesActivo = false;
-        }
-
+        desconectarCliente();
+        
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/Main.fxml"));
         Parent root = loader.load();
+        
+        MainController controller = loader.getController();
+        controller.inicializar();
 
-        Scene scene = new Scene(root, 349, 645);
+        Scene scene = new Scene(root, 349, 667);
         Stage stage = new Stage();
 
         stage.setScene(scene);
@@ -402,6 +416,22 @@ public class DashboardviewController{
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
+    }
+    /**
+     * Metodo para que al darle click a salir, cierre todos los canales de comunicacion con el server
+     * y le notifique la desconeccion del usuario
+     * @param event
+     * @throws IOException
+     */
+    public void desconectarCliente() throws IOException{
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+            schedulerActivo = false;
+        }
+        if (schedulerMensajes != null && !schedulerMensajes.isShutdown()) {
+            schedulerMensajes.shutdownNow();
+            schedulerMensajesActivo = false;
+        }
 
         new Thread(() -> {
             try {
@@ -416,22 +446,65 @@ public class DashboardviewController{
             }
         }).start();
     }
+    /**
+     * Metodo que al darle click a salir de una sala, envia el comando para que el servidor haga la desconeccion
+     * @param event
+     */
+    @FXML
+    void clickSalirSala(ActionEvent event) {
+        new Thread(() ->{
+            try {
+                btnSalirSala.setDisable(true);
+                if (schedulerMensajes != null && !schedulerMensajes.isShutdown()) {
+                    schedulerMensajes.shutdownNow();
+                    schedulerMensajesActivo = false;
+                }
+                PaneExplorar.setVisible(true);
+                PaneConversacion.setVisible(false);
+                mostrar_salas_nuevas();
+                mostrarSalas();
+                String comando = "salir_sala_user_id," + sala_activa_id + "," + user_id;
+                String respuesta = SocketCliente.getInstancia().enviarComando(CryptoUtil.getInstance().encriptar(comando));
+                System.out.println(respuesta);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    /**
+     * Click para minimizar la ventana del dashboard
+     * @param event
+     */
     @FXML
     void clickMinimizar(ActionEvent event) {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setIconified(true);
     }
+    /**
+     * Click para cerrar y desconectar al cliente al salir de la ventana
+     * @param event
+     * @throws IOException
+     */
     @FXML
-    void clickCerrar(ActionEvent event) {
+    void clickCerrar(ActionEvent event) throws IOException {
+        desconectarCliente();
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.close();
     }
-
+    /**
+     * Click para ajustar el tamaño de la ventana
+     * @param event
+     */
     @FXML
     void clickCuadrito(ActionEvent event) {
         Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setMaximized(!stage.isMaximized());;
     }
+    /**
+     * Cicl para abrir la ventana de creacion de una nueva sala
+     * @param event
+     * @throws IOException
+     */
      @FXML
     void clickCrear(ActionEvent event) throws IOException {
         abrir_crear_sala();

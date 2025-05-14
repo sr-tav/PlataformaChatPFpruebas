@@ -1,5 +1,6 @@
 com\example\CrearSalaViewController.class
 com\example\CasillaExplorarSalaViewControler.class
+com\example\SignUpViewController.class
 module-info.class
 com\example\App.class
 com\example\CasillaMensajeViewController.class

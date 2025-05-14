@@ -69,4 +69,11 @@ defmodule Sala do
     nuevos_usuarios = [user|usuarios]
     Usuario.escribir_csv(nuevos_usuarios, "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
   end
+
+  def eliminar_user(sala_id, user_id) do
+    Usuario.eliminar_sala(sala_id, user_id)
+    usuarios = Usuario.leer_csv("archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
+    nuevos_usuarios = Enum.filter(usuarios, fn usuario -> not(usuario.user_id == user_id) end)
+    Usuario.escribir_csv(nuevos_usuarios, "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
+  end
 end

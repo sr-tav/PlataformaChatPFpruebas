@@ -5,8 +5,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptoUtil {
-    private static final String CLAVE_SECRETA = "1234567890123456"; // 16 bytes
-    private static final String ALGORITMO = "AES/ECB/PKCS5Padding"; // <-- explícito
+    private static final String CLAVE_SECRETA = "1234567890123456";
+    private static final String ALGORITMO = "AES/ECB/PKCS5Padding";
     private static final CryptoUtil instancia = new CryptoUtil();
 
     private CryptoUtil() {}
@@ -28,7 +28,6 @@ public class CryptoUtil {
         SecretKeySpec key = new SecretKeySpec(CLAVE_SECRETA.getBytes("UTF-8"), "AES");
 
         cipher.init(Cipher.DECRYPT_MODE, key);
-        // Limpia espacios y saltos de línea
         byte[] decodificado = Base64.getDecoder().decode(textoEncriptado.trim().replace("\n", "").replace("\r", ""));
         byte[] desencriptado = cipher.doFinal(decodificado);
 

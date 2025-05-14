@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.io.IOException;
@@ -30,9 +31,38 @@ public class MainController {
     @FXML
     private Button btnRegistrar;
 
+    @FXML
+    private Button btnCerrar;
+
+    @FXML
+    private Button btnCuadrito;
+
+    @FXML
+    private Button btnMinimizar;
+
+    @FXML
+    private StackPane PaneSuperior;
+
     private String user;
     private String pass;
     private String user_id;
+    private double xOffset = 0;
+    private double yOffset = 0;
+    /**
+     * Metodo para inicializar la ventana
+     */
+    public void inicializar() {
+        PaneSuperior.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+    
+        PaneSuperior.setOnMouseDragged(event -> {
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        });
+    }
     /**
      * Metodo que al darle click al boton Sign in en el login, envia al server la info del login
      * y retorna un probatorio y un user_id para luego desplegar la ventana dashboard
@@ -106,10 +136,51 @@ public class MainController {
      * Metodo que al darle click al boton Sign up, abre el formulario de registro de un nuevo
      * usuario
      * @param event
+     * @throws IOException 
      */
     @FXML
-    void clickRegistrar(ActionEvent event) {
+    void clickRegistrar(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/SingUp.fxml"));
+        Parent root = loader.load();
+        SignUpViewController controller = loader.getController();
+        controller.inicializar();
+        Scene scene = new Scene(root, 379, 466);
+        Stage stage = new Stage();
 
+        stage.setScene(scene);
+
+        Stage StageCerrar = (Stage) btnRegistrar.getScene().getWindow();
+        StageCerrar.close();
+
+        stage.initStyle(StageStyle.UNDECORATED);
+        stage.show();
     }
-
+    /**
+     * Click para minimizar la ventana del dashboard
+     * @param event
+     */
+    @FXML
+    void clickMinimizar(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setIconified(true);
+    }
+    /**
+     * Click para cerrar y desconectar al cliente al salir de la ventana
+     * @param event
+     * @throws IOException
+     */
+    @FXML
+    void clickCerrar(ActionEvent event){
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.close();
+    }
+    /**
+     * Click para ajustar el tamaño de la ventana
+     * @param event
+     */
+    @FXML
+    void clickCuadrito(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());;
+    }
 }

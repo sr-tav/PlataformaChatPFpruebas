@@ -12,6 +12,28 @@ defmodule Usuario do
     |> Enum.map(&convertir_cadena_docente/1)
   end
 
+  def crear_auto(nombre,edad,usuario,contra) do
+    usuarios = leer_csv("archivos_csv/usuarios.csv")
+      ids_existentes =
+        usuarios
+        |> Enum.map(& &1.user_id)
+        |> Enum.filter(&(&1 != ""))
+        |> Enum.map(&String.to_integer/1)
+
+      nuevo_id =
+        if ids_existentes == [] do
+          "1"
+        else
+          (Enum.max(ids_existentes) + 1)
+          |> Integer.to_string()
+        end
+
+      nuevo_usuario = Usuario.crear(nombre, edad, usuario, contra, nuevo_id, "")
+      nuevos_usuarios = [nuevo_usuario | usuarios]
+      escribir_csv(nuevos_usuarios, "archivos_csv/usuarios.csv")
+      nuevo_id;
+  end
+
   def convertir_cadena_docente(cadena) do
     [nombre,edad,usuario,contra,user_id,salas_id] = cadena
     |> String.split(";")
@@ -44,21 +66,39 @@ defmodule Usuario do
   end
 
   def agregar_salas(user_id, sala_id) do
-  usuarios = leer_csv("archivos_csv/usuarios.csv")
+    usuarios = leer_csv("archivos_csv/usuarios.csv")
 
-  usuarios_actualizados = Enum.map(usuarios, fn usuario ->
-    if usuario.user_id == user_id do
-      nuevas_salas =
-        case usuario.salas_id do
-          "" -> sala_id
-          salas -> "#{salas}/#{sala_id}"
-        end
+    usuarios_actualizados = Enum.map(usuarios, fn usuario ->
+      if usuario.user_id == user_id do
+        nuevas_salas =
+          case usuario.salas_id do
+            "" -> sala_id
+            salas -> "#{salas}/#{sala_id}"
+          end
 
-      %Usuario{usuario | salas_id: nuevas_salas}
-    else
-      usuario
-    end
-  end)
-  escribir_csv(usuarios_actualizados, "archivos_csv/usuarios.csv")
-end
+        %Usuario{usuario | salas_id: nuevas_salas}
+      else
+        usuario
+      end
+    end)
+    escribir_csv(usuarios_actualizados, "archivos_csv/usuarios.csv")
+  end
+  def eliminar_sala(sala_id, user_id) do
+    usuarios = leer_csv("archivos_csv/usuarios.csv")
+
+    usuarios_actualizados = Enum.map(usuarios, fn usuario ->
+      if usuario.user_id == user_id do
+        nuevas_salas =
+          usuario.salas_id
+          |> String.split("/", trim: true)
+          |> Enum.reject(&(&1 == sala_id))
+          |> Enum.join("/")
+
+        %Usuario{usuario | salas_id: nuevas_salas}
+      else
+        usuario
+      end
+    end)
+    escribir_csv(usuarios_actualizados, "archivos_csv/usuarios.csv")
+  end
 end

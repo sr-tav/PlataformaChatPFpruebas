@@ -1,5 +1,6 @@
 defmodule TCPServer do
-
+  # --------------------------- Metodo para iniciar el servidor y mostrar la vista JavaFX para control ----------------------------------
+  # @param
   def start do
     SeguidorConexion.start_link([])
     {:ok, socket} = :gen_tcp.listen(4040, [:binary, packet: :line, active: false, reuseaddr: true, ip: {0,0,0,0}])
@@ -14,14 +15,16 @@ defmodule TCPServer do
     end)
     loop_acceptor(socket)
   end
-
+  # --------------------------- Loop recursivo para recibir nuevos clientes en el servidor ----------------------------------
+  # @param = socket
   defp loop_acceptor(socket) do
     IO.puts("Esperando nueva conexión...")
     {:ok, cliente} = :gen_tcp.accept(socket)
     spawn(fn -> manejar_cliente(cliente) end)
     loop_acceptor(socket)
   end
-
+  # --------------------------- Gestion de un proceso unico para cada cliente ----------------------------------
+  # @param = socket
   defp manejar_cliente(socket) do
 
     case :gen_tcp.recv(socket, 0) do
@@ -33,7 +36,7 @@ defmodule TCPServer do
         respuesta_encriptada = "#{Encriptador.encriptar(respuesta)}\n"
         :gen_tcp.send(socket, respuesta_encriptada)
         IO.puts("Datos enviados: #{inspect(respuesta)}")
-        IO.puts("Datos crip enviados: #{inspect(respuesta_encriptada)}")
+        ##IO.puts("Datos crip enviados: #{inspect(respuesta_encriptada)}")
         manejar_cliente(socket)
 
       {:error, _reason} ->
@@ -45,7 +48,8 @@ defmodule TCPServer do
     end
 
   end
-
+  # --------------------------- Procesamiento de mensajes que vienen del cliente ----------------------------------
+  # @param = datos que envio el cliente
   defp procesar_mensaje(data) do
 
     case String.trim(data) do
@@ -54,6 +58,9 @@ defmodule TCPServer do
 
       mensaje ->
         case String.split(mensaje, ",") do
+          ["crear_usuario", nombre, edad, usuario, contra] ->
+            user_id = crear_usuario(nombre,edad,usuario,contra)
+            "Usuario creado,#{user_id}"
 
           ["agregar_sala_user", user_id, sala_id] ->
             agregar_sala_user(user_id, sala_id)
@@ -89,6 +96,10 @@ defmodule TCPServer do
           ["actualizar_mensajes_sala", sala_id] ->
             obtener_mensajes_sala(sala_id)
 
+          ["salir_sala_user_id", sala_id, user_id] ->
+            salir_sala(sala_id, user_id)
+            "Sacado de la sala"
+
           [user, pass] ->
 
             if validar_credenciales(String.trim(user), String.trim(pass)) do
@@ -104,7 +115,20 @@ defmodule TCPServer do
     end
 
   end
-
+  # --------------------------- Crear un nuevo usuario ----------------------------------
+  # @param = nombre / edad / usuario / contrasena
+  defp crear_usuario(nombre,edad,usuario,contra) do
+    user_id = Usuario.crear_auto(nombre,edad,usuario,contra)
+    modificar_usuarios_conectados("conectar", usuario, contra)
+    user_id
+  end
+  # --------------------------- Sacar de una sala un usuario teniendo sala_id y user_id ----------------------------------
+  # @param = sala_id / user_id
+  defp salir_sala(sala_id, user_id) do
+    Sala.eliminar_user(sala_id, user_id)
+  end
+  # --------------------------- Obtener todas las salas a las que no esta inscrito un usuario ----------------------------------
+  # @param = sala_id / user_id / contenido del mensaje
   defp guardar_mensaje(sala_id, user_id, contenido) do
     ruta = "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_mensajes.csv"
     mensajes = Mensaje.leer_csv(ruta)
@@ -115,11 +139,13 @@ defmodule TCPServer do
 
     Mensaje.escribir_csv(nuevos_mensajes, ruta)
   end
-
+  # --------------------------- Incribir un usuario a una sala teniendo sala_id y user_id ----------------------------------
+  # @param = sala_id / user_id
   defp agregar_sala_user(sala_id, user_id) do
     Sala.agregar_user(sala_id, user_id)
   end
-
+  # --------------------------- Obtener todas las salas a las que no esta inscrito un usuario ----------------------------------
+  # @param = sala_id
   defp obtener_not_salas(user_id) do
     usuario = Usuario.buscar_usuario(user_id)
     salas_usuario =
@@ -134,38 +160,45 @@ defmodule TCPServer do
     |> Enum.map(& &1.sala_id)
     |> Enum.join("/")
   end
-
+  # --------------------------- Obtener todos los mensajes de una sala teniendo el sala_id ----------------------------------
+  # @param = sala_id
   defp obtener_mensajes_sala(sala_id) do
     "archivos_csv/sala_#{sala_id}/sala_#{sala_id}_mensajes.csv"
     |> Mensaje.leer_csv()
     |> Enum.map(fn msj -> "#{msj.fecha}~#{msj.user_id}~#{msj.texto}"end)
     |> Enum.join("|")
   end
-
+  # --------------------------- obtener nombre de la sala y la descripcion por sala_id ----------------------------------
+  # @param = sala_id
   defp obtener_nombre_sala_descripcion(sala_id_2) do
     sala = Enum.find(Sala.leer_csv("archivos_csv/salas.csv"), fn sala_fn -> sala_fn.sala_id == sala_id_2 end)
     "#{sala.nombre},#{sala.descripcion}"
   end
-
+  # --------------------------- Obtener nombre de sala por sala_id ----------------------------------
+  # @param = sala_id
   defp obtener_nombre_sala(sala_id_2) do
     sala = Enum.find(Sala.leer_csv("archivos_csv/salas.csv"), fn sala_fn -> sala_fn.sala_id == sala_id_2 end)
     "#{sala.nombre}"
   end
-
+  # --------------------------- Modificar el csv de usuarios conectados, caso: coneccion ----------------------------------
+  # @param = user_id
   defp obtener_salas_user(user_id) do
     persona = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user_id == usuario.user_id end)
     persona.salas_id
   end
-
+  # --------------------------- obtener el user_id por credenciales ----------------------------------
+  # @param = user / pass
   defp get_user_id(user, pass) do
     persona = Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario -> user == usuario.usuario && pass == usuario.contra end)
     persona.user_id
   end
-
+  # --------------------------- Crear nueva sala  ----------------------------------
+  # @param = nombre / descripcion / user_id
   defp crear_sala(nombre,descripcion,user_id) do
     Sala.crear_auto(nombre, descripcion,user_id)
   end
-
+  # --------------------------- Obtener nombre del usuario por user_id ----------------------------------
+  # @param = user_id
   defp get_nombre_usuario(user_id) do
     case Enum.find(Usuario.leer_csv("archivos_csv/usuarios.csv"), fn usuario ->
          user_id == usuario.user_id
@@ -174,14 +207,16 @@ defmodule TCPServer do
     user -> user.nombre
   end
   end
-
+  # --------------------------- validar credenciales ----------------------------------
+  # @param = user / pass
   defp validar_credenciales(user, pass) do
     spawn(fn -> modificar_usuarios_conectados("conectar", user, pass) end)
     Usuario.leer_csv("archivos_csv/usuarios.csv")
     |>Enum.any?(fn usuario -> user == usuario.usuario && pass == usuario.contra end)
 
   end
-
+  # --------------------------- Modificar el csv de usuarios conectados, caso: coneccion ----------------------------------
+  # @param = "conectar"/ user / pass
   defp modificar_usuarios_conectados("conectar", user, pass) do
     IO.inspect(user, label: "usuario")
     IO.inspect(pass, label: "contrase")
@@ -198,7 +233,8 @@ defmodule TCPServer do
       Usuario.escribir_csv(nueva_lista, "archivos_csv/usuarios_conectados.csv")
     end
   end
-
+  # -------------------------- Modificar el csv de usuarios conectados, caso: desconeccion -------------------------------
+  # @param = "desconeccion"/ user / pass
   defp modificar_usuarios_conectados("desconeccion", user, pass) do
     conectados = Usuario.leer_csv("archivos_csv/usuarios_conectados.csv")
     usuarios = Usuario.leer_csv("archivos_csv/usuarios.csv")
