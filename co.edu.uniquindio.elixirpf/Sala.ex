@@ -7,18 +7,17 @@ defmodule Sala do
 
   def crear_auto(nombre, descripcion, user_id) do
     sala_id = generar_id_unico("archivos_csv/salas.csv")
-
     carpeta = "archivos_csv/sala_#{sala_id}"
     File.mkdir(carpeta)
 
     Usuario.agregar_salas(user_id,sala_id)
     usuario_creador = Usuario.buscar_usuario(user_id)
-    mensajes = Mensaje.escribir_csv([],"archivos_csv/sala_#{nombre}_#{sala_id}/sala_#{sala_id}_mensajes.csv")
-    usuarios = Usuario.escribir_csv([usuario_creador],"archivos_csv/sala_#{nombre}_#{sala_id}/sala_#{sala_id}_usuarios.csv")
+    mensajes = Mensaje.escribir_csv([],"archivos_csv/sala_#{sala_id}/sala_#{sala_id}_mensajes.csv")
+    usuarios = Usuario.escribir_csv([usuario_creador],"archivos_csv/sala_#{sala_id}/sala_#{sala_id}_usuarios.csv")
 
     nueva_sala = crear(nombre, sala_id, mensajes, usuarios, descripcion)
     salas = leer_csv("archivos_csv/salas.csv")
-
+    IO.inspect(salas)
     escribir_csv([nueva_sala | salas], "archivos_csv/salas.csv")
     sala_id
   end

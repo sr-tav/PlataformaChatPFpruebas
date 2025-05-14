@@ -41,14 +41,14 @@ defmodule Usuario do
     Usuario.crear(nombre, edad,usuario,contra,user_id,salas_id)
   end
 
+  def escribir_csv([], nombre), do: File.write!(nombre, "nombre;edad;usuario;contra;user_id;salas_id\n")
+
   def escribir_csv(usuarios, nombre) do
     usuarios
     |>generar_mensaje_clientes(&convertir_usuario_linea_csv/1)
     |>(&("nombre;edad;usuario;contra;user_id;salas_id\n"<>&1)).()
     |>(&File.write(nombre,&1)).()
   end
-
-  def escribir_csv([], nombre), do: File.write!(nombre, "nombre;edad;usuario;contra;user_id;salas_id\n")
 
   defp convertir_usuario_linea_csv(usuario) do
     "#{usuario.nombre};#{usuario.edad};#{usuario.usuario};#{usuario.contra};#{usuario.user_id};#{usuario.salas_id}"

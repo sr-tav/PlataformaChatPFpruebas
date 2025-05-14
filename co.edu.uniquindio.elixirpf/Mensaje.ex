@@ -19,13 +19,14 @@ defmodule Mensaje do
     Mensaje.crear(fecha, sala_id, user_id, texto)
   end
 
+  def escribir_csv([], nombre), do: File.write!(nombre, "fecha;sala_id;user_id;texto\n")
+
   def escribir_csv(mensajes, nombre) do
     mensajes
     |>generar_mensajes(&convertir_mensaje_linea_csv/1)
     |>(&("fecha;sala_id;user_id;texto\n"<>&1)).()
     |>(&File.write(nombre,&1)).()
   end
-  def escribir_csv([], nombre), do: File.write!(nombre, "fecha;sala_id;user_id;texto\n")
 
   defp convertir_mensaje_linea_csv(mensaje) do
     "#{mensaje.fecha};#{mensaje.sala_id};#{mensaje.user_id};#{mensaje.texto}"
